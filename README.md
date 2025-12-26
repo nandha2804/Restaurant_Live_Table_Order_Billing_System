@@ -402,6 +402,9 @@ curl -X GET http://127.0.0.1:8000/api/bills/1/export_pdf/ \
 
 ## 📊 Database Schema
 
+### ER Diagram
+![ER Diagram](ER%20Diagram.png)
+
 ### Relationships
 ```
 Table (1) ──────────── (many) Order
