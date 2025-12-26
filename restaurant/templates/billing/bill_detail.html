@@ -1,0 +1,144 @@
+{% extends 'base.html' %}
+
+{% block title %}Bill #{{ bill.id }} - Restaurant POS{% endblock %}
+
+{% block content %}
+<div class="mb-8">
+    <a href="{% url 'billing' %}" class="text-purple-600 hover:text-purple-700 mb-4 inline-block">
+        <i class="fas fa-arrow-left mr-2"></i>Back to Billing
+    </a>
+    <h1 class="text-4xl font-bold text-gray-900 mt-4">
+        <i class="fas fa-receipt text-purple-600 mr-3"></i>Bill #{{ bill.id }}
+    </h1>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Bill Details -->
+    <div class="lg:col-span-2">
+        <!-- Restaurant Header -->
+        <div class="bg-white rounded-lg shadow p-8 mb-6 text-center">
+            <h2 class="text-3xl font-bold text-gray-900">RestaurantPOS</h2>
+            <p class="text-gray-600">Professional Restaurant Management System</p>
+            <p class="text-gray-500 text-sm mt-2">Bill Invoice</p>
+        </div>
+
+        <!-- Bill Info -->
+        <div class="bg-white rounded-lg shadow p-6 mb-6">
+            <div class="grid grid-cols-2 gap-4 mb-6">
+                <div>
+                    <p class="text-gray-600 text-sm">Bill Number</p>
+                    <p class="text-2xl font-bold text-purple-600">#{{ bill.id }}</p>
+                </div>
+                <div>
+                    <p class="text-gray-600 text-sm">Table Number</p>
+                    <p class="text-2xl font-bold text-purple-600">#{{ bill.table.table_number }}</p>
+                </div>
+                <div>
+                    <p class="text-gray-600 text-sm">Generated</p>
+                    <p class="text-lg font-semibold text-gray-900">{{ bill.created_at|date:"d M, Y H:i" }}</p>
+                </div>
+                <div>
+                    <p class="text-gray-600 text-sm">Status</p>
+                    <span class="inline-block px-3 py-1 rounded-full text-sm font-semibold {% if bill.status == 'pending' %}bg-yellow-100 text-yellow-800{% else %}bg-green-100 text-green-800{% endif %} mt-1">
+                        {% if bill.status == 'pending' %}<i class="fas fa-hourglass-half mr-1"></i>Pending{% else %}<i class="fas fa-check-circle mr-1"></i>Paid{% endif %}
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Order Items -->
+        <div class="bg-white rounded-lg shadow p-6 mb-6">
+            <h2 class="text-xl font-bold text-gray-900 mb-4">
+                <i class="fas fa-list text-purple-600 mr-2"></i>Items
+            </h2>
+            
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-gray-50 border-b-2 border-gray-300">
+                        <tr>
+                            <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Item</th>
+                            <th class="px-4 py-3 text-center text-sm font-semibold text-gray-700">Qty</th>
+                            <th class="px-4 py-3 text-right text-sm font-semibold text-gray-700">Price</th>
+                            <th class="px-4 py-3 text-right text-sm font-semibold text-gray-700">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in items %}
+                        <tr class="border-b border-gray-200">
+                            <td class="px-4 py-3 text-gray-900">{{ item.menu_item.name }}</td>
+                            <td class="px-4 py-3 text-center text-gray-900">{{ item.quantity }}</td>
+                            <td class="px-4 py-3 text-right text-gray-900">₹{{ item.menu_item.price }}</td>
+                            <td class="px-4 py-3 text-right font-semibold text-gray-900">₹{{ item.get_total }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Summary & Payment -->
+    <div>
+        <div class="bg-white rounded-lg shadow p-6 sticky top-24">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6">
+                <i class="fas fa-calculator text-purple-600 mr-2"></i>Bill Summary
+            </h2>
+            
+            <!-- Calculation -->
+            <div class="space-y-3 mb-6 pb-6 border-b-2 border-gray-200">
+                <div class="flex justify-between">
+                    <span class="text-gray-600">Subtotal</span>
+                    <span class="font-semibold text-gray-900">₹{{ bill.subtotal }}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-600">Tax (5%)</span>
+                    <span class="font-semibold text-gray-900">₹{{ bill.tax_amount }}</span>
+                </div>
+            </div>
+
+            <!-- Total -->
+            <div class="mb-8 pb-8 border-b-2 border-gray-300">
+                <div class="flex justify-between items-end">
+                    <span class="text-lg font-bold text-gray-900">Total Amount</span>
+                    <span class="text-4xl font-bold text-purple-600">₹{{ bill.total_amount }}</span>
+                </div>
+            </div>
+
+            <!-- Payment Info -->
+            {% if bill.status == 'paid' %}
+            <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+                <p class="text-green-800 font-semibold mb-2">
+                    <i class="fas fa-check-circle mr-2"></i>Payment Received
+                </p>
+                <p class="text-green-700 text-sm">{{ bill.paid_at|date:"d M, Y H:i" }}</p>
+            </div>
+            {% endif %}
+
+            <!-- Action Buttons -->
+            <div class="space-y-3">
+                {% if bill.status == 'pending' %}
+                <form method="post" action="{% url 'mark-paid' bill.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="w-full bg-green-600 text-white py-3 rounded-lg font-medium hover:bg-green-700 transition" onclick="return confirm('Confirm payment?')">
+                        <i class="fas fa-check mr-2"></i>Mark as Paid
+                    </button>
+                </form>
+                {% endif %}
+                
+                <a href="#" onclick="window.print()" class="block w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition text-center">
+                    <i class="fas fa-print mr-2"></i>Print Bill
+                </a>
+                
+                <a href="{% url 'billing' %}" class="block w-full bg-gray-600 text-white py-3 rounded-lg font-medium hover:bg-gray-700 transition text-center">
+                    <i class="fas fa-times mr-2"></i>Close
+                </a>
+            </div>
+
+            <!-- Footer -->
+            <div class="mt-8 pt-6 border-t border-gray-200 text-center text-sm text-gray-500">
+                <p>Thank you for your visit!</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

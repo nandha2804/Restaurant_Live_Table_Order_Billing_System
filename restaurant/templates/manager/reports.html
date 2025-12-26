@@ -1,0 +1,172 @@
+{% extends 'base.html' %}
+
+{% block title %}Reports & Analytics - Restaurant POS{% endblock %}
+
+{% block content %}
+<div class="mb-8">
+    <h1 class="text-4xl font-bold text-gray-900">
+        <i class="fas fa-chart-bar text-purple-600 mr-3"></i>Reports & Analytics
+    </h1>
+    <p class="text-gray-600 mt-2">Daily sales summary and table usage analytics</p>
+</div>
+
+<!-- KPI Cards -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <div class="bg-white rounded-lg shadow p-6 border-l-4 border-purple-600">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-gray-600 text-sm font-medium">Total Revenue</p>
+                <p class="text-3xl font-bold text-gray-900 mt-2">₹{{ total_revenue }}</p>
+            </div>
+            <i class="fas fa-rupiah-sign text-4xl text-purple-200"></i>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-lg shadow p-6 border-l-4 border-green-600">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-gray-600 text-sm font-medium">Total Bills</p>
+                <p class="text-3xl font-bold text-gray-900 mt-2">{{ total_bills }}</p>
+            </div>
+            <i class="fas fa-receipt text-4xl text-green-200"></i>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-lg shadow p-6 border-l-4 border-blue-600">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-gray-600 text-sm font-medium">Average Bill</p>
+                <p class="text-3xl font-bold text-gray-900 mt-2">₹{{ average_bill|floatformat:0 }}</p>
+            </div>
+            <i class="fas fa-calculator text-4xl text-blue-200"></i>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-lg shadow p-6 border-l-4 border-yellow-600">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-gray-600 text-sm font-medium">Total Tax</p>
+                <p class="text-3xl font-bold text-gray-900 mt-2">₹{{ total_tax }}</p>
+            </div>
+            <i class="fas fa-percentage text-4xl text-yellow-200"></i>
+        </div>
+    </div>
+</div>
+
+<!-- Table Usage Analytics -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+    <div class="bg-white rounded-lg shadow p-6">
+        <h2 class="text-2xl font-bold text-gray-900 mb-6">
+            <i class="fas fa-pie-chart text-purple-600 mr-2"></i>Table Usage Distribution
+        </h2>
+        
+        <div class="space-y-4">
+            <div class="flex items-center justify-between pb-4 border-b border-gray-200">
+                <div class="flex items-center">
+                    <span class="inline-block w-4 h-4 bg-green-500 rounded mr-3"></span>
+                    <span class="text-gray-700">Available</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="w-40 bg-gray-200 rounded-full h-2">
+                        <div class="bg-green-500 h-2 rounded-full" style="width: 40%"></div>
+                    </div>
+                    <span class="font-bold text-gray-900 w-8">{{ table_usage.available }}</span>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-between pb-4 border-b border-gray-200">
+                <div class="flex items-center">
+                    <span class="inline-block w-4 h-4 bg-yellow-500 rounded mr-3"></span>
+                    <span class="text-gray-700">Occupied</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="w-40 bg-gray-200 rounded-full h-2">
+                        <div class="bg-yellow-500 h-2 rounded-full" style="width: 30%"></div>
+                    </div>
+                    <span class="font-bold text-gray-900 w-8">{{ table_usage.occupied }}</span>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-between pb-4 border-b border-gray-200">
+                <div class="flex items-center">
+                    <span class="inline-block w-4 h-4 bg-blue-500 rounded mr-3"></span>
+                    <span class="text-gray-700">Bill Requested</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="w-40 bg-gray-200 rounded-full h-2">
+                        <div class="bg-blue-500 h-2 rounded-full" style="width: 20%"></div>
+                    </div>
+                    <span class="font-bold text-gray-900 w-8">{{ table_usage.bill_requested }}</span>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <span class="inline-block w-4 h-4 bg-gray-400 rounded mr-3"></span>
+                    <span class="text-gray-700">Closed</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="w-40 bg-gray-200 rounded-full h-2">
+                        <div class="bg-gray-400 h-2 rounded-full" style="width: 10%"></div>
+                    </div>
+                    <span class="font-bold text-gray-900 w-8">{{ table_usage.closed }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Summary Box -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <h2 class="text-2xl font-bold text-gray-900 mb-6">
+            <i class="fas fa-info-circle text-purple-600 mr-2"></i>Summary
+        </h2>
+        
+        <div class="space-y-4">
+            <div class="bg-purple-50 rounded-lg p-4">
+                <p class="text-gray-600 text-sm">Today's Revenue</p>
+                <p class="text-3xl font-bold text-purple-600 mt-1">₹{{ total_revenue }}</p>
+            </div>
+
+            <div class="bg-green-50 rounded-lg p-4">
+                <p class="text-gray-600 text-sm">Bills Processed</p>
+                <p class="text-3xl font-bold text-green-600 mt-1">{{ total_bills }}</p>
+            </div>
+
+            <div class="bg-blue-50 rounded-lg p-4">
+                <p class="text-gray-600 text-sm">Average Bill Value</p>
+                <p class="text-3xl font-bold text-blue-600 mt-1">₹{{ average_bill|floatformat:0 }}</p>
+            </div>
+
+            <div class="bg-yellow-50 rounded-lg p-4">
+                <p class="text-gray-600 text-sm">Total Tax Collected</p>
+                <p class="text-3xl font-bold text-yellow-600 mt-1">₹{{ total_tax }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Performance Metrics -->
+<div class="bg-white rounded-lg shadow p-6">
+    <h2 class="text-2xl font-bold text-gray-900 mb-6">
+        <i class="fas fa-line-chart text-purple-600 mr-2"></i>Performance Metrics
+    </h2>
+    
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="text-center">
+            <p class="text-5xl font-bold text-purple-600">{{ total_bills }}</p>
+            <p class="text-gray-600 mt-2">Completed Orders</p>
+            <p class="text-sm text-gray-500 mt-1">Today</p>
+        </div>
+        <div class="text-center">
+            <p class="text-5xl font-bold text-green-600">45%</p>
+            <p class="text-gray-600 mt-2">Table Occupancy</p>
+            <p class="text-sm text-gray-500 mt-1">Average</p>
+        </div>
+        <div class="text-center">
+            <p class="text-5xl font-bold text-blue-600">₹{{ average_bill|floatformat:0 }}</p>
+            <p class="text-gray-600 mt-2">Revenue Per Order</p>
+            <p class="text-sm text-gray-500 mt-1">Average</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,150 @@
+{% extends 'base.html' %}
+
+{% block title %}Billing - Restaurant Management{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <h1 class="mb-4"><i class="fas fa-credit-card"></i> Billing Management</h1>
+    </div>
+</div>
+
+<!-- KPI Cards -->
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title"><i class="fas fa-clock"></i> Pending Bills</h5>
+                <p class="card-text" style="font-size: 28px; font-weight: bold; color: #f44336;">{{ pending_bills.count }}</p>
+                <small class="text-muted">Awaiting payment</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title"><i class="fas fa-rupiah-sign"></i> Pending Amount</h5>
+                <p class="card-text" style="font-size: 28px; font-weight: bold; color: #f44336;">₹{{ total_pending }}</p>
+                <small class="text-muted">To be collected</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title"><i class="fas fa-check-circle"></i> Paid Today</h5>
+                <p class="card-text" style="font-size: 28px; font-weight: bold; color: #4caf50;">₹{{ total_paid_today }}</p>
+                <small class="text-muted">Collected bills</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Pending Payments -->
+<div class="row mb-4">
+    <div class="col-md-12">
+        <h3 class="mb-3"><i class="fas fa-hourglass-half"></i> Pending Payments</h3>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Bill ID</th>
+                            <th>Table</th>
+                            <th>Subtotal</th>
+                            <th>Tax</th>
+                            <th>Total Amount</th>
+                            <th>Generated On</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for bill in pending_bills %}
+                        <tr>
+                            <td><strong>#{{ bill.id }}</strong></td>
+                            <td>Table {{ bill.table.table_number }}</td>
+                            <td>₹{{ bill.subtotal }}</td>
+                            <td>₹{{ bill.tax_amount }}</td>
+                            <td><strong style="color: #f44336;">₹{{ bill.total_amount }}</strong></td>
+                            <td>{{ bill.created_at|date:"d M, H:i" }}</td>
+                            <td>
+                                <a href="{% url 'bill-detail' bill.id %}" class="btn btn-sm btn-info">
+                                    <i class="fas fa-eye"></i> View
+                                </a>
+                                <form method="post" action="{% url 'mark-paid' bill.id %}" style="display: inline;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('Mark bill as paid?')">
+                                        <i class="fas fa-check"></i> Collect
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center text-muted py-4">
+                                <i class="fas fa-check-circle"></i> No pending bills
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Completed Bills -->
+<div class="row mb-4">
+    <div class="col-md-12">
+        <h3 class="mb-3"><i class="fas fa-check-double"></i> Completed Bills (Last 10)</h3>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Bill ID</th>
+                            <th>Table</th>
+                            <th>Subtotal</th>
+                            <th>Tax</th>
+                            <th>Total Amount</th>
+                            <th>Paid On</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for bill in paid_bills %}
+                        <tr>
+                            <td><strong>#{{ bill.id }}</strong></td>
+                            <td>Table {{ bill.table.table_number }}</td>
+                            <td>₹{{ bill.subtotal }}</td>
+                            <td>₹{{ bill.tax_amount }}</td>
+                            <td><strong style="color: #4caf50;">₹{{ bill.total_amount }}</strong></td>
+                            <td>{{ bill.paid_at|date:"d M, H:i" }}</td>
+                            <td>
+                                <a href="{% url 'bill-detail' bill.id %}" class="btn btn-sm btn-info">
+                                    <i class="fas fa-eye"></i> View
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center text-muted py-4">No completed bills</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

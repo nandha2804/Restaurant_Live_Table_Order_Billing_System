@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+
+{% block title %}Orders - Restaurant Management{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+    <h2>📝 Restaurant Orders</h2>
+    <a href="/orders/create/" class="btn btn-primary">+ Create New Order</a>
+</div>
+
+<h3 style="margin-bottom: 20px;">🔄 Active Orders</h3>
+<table>
+    <thead>
+        <tr>
+            <th>Order ID</th>
+            <th>Table</th>
+            <th>Items</th>
+            <th>Status</th>
+            <th>Order Time</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>#1</td>
+            <td>Table 3</td>
+            <td>2 items</td>
+            <td><span class="badge badge-warning">In Kitchen</span></td>
+            <td>10:15 AM</td>
+            <td>
+                <a href="/orders/1/" class="btn btn-secondary" style="padding: 5px 10px; font-size: 12px;">View</a>
+                <a href="/orders/1/mark-served/" class="btn btn-success" style="padding: 5px 10px; font-size: 12px;">Serve</a>
+            </td>
+        </tr>
+        <tr>
+            <td>#2</td>
+            <td>Table 4</td>
+            <td>3 items</td>
+            <td><span class="badge badge-info">Placed</span></td>
+            <td>10:20 AM</td>
+            <td>
+                <a href="/orders/2/" class="btn btn-secondary" style="padding: 5px 10px; font-size: 12px;">View</a>
+                <a href="/orders/2/send-to-kitchen/" class="btn btn-warning" style="padding: 5px 10px; font-size: 12px;">Kitchen</a>
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+<h3 style="margin-top: 40px; margin-bottom: 20px;">✅ Completed Orders</h3>
+<table>
+    <thead>
+        <tr>
+            <th>Order ID</th>
+            <th>Table</th>
+            <th>Items</th>
+            <th>Status</th>
+            <th>Bill Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>#1</td>
+            <td>Table 1</td>
+            <td>2 items</td>
+            <td><span class="badge badge-success">Served</span></td>
+            <td><span class="badge badge-success">Paid</span></td>
+            <td>
+                <a href="/orders/1/" class="btn btn-secondary" style="padding: 5px 10px; font-size: 12px;">View</a>
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+<h3 style="margin-top: 40px; margin-bottom: 20px;">📊 Order Statistics</h3>
+<div class="grid">
+    <div class="card">
+        <h3>Total Orders (Today)</h3>
+        <div class="card-value">12</div>
+        <p class="text-muted">Completed and pending</p>
+    </div>
+    
+    <div class="card">
+        <h3>Average Items/Order</h3>
+        <div class="card-value">2.5</div>
+        <p class="text-muted">Items per order</p>
+    </div>
+    
+    <div class="card">
+        <h3>Avg. Service Time</h3>
+        <div class="card-value">18 min</div>
+        <p class="text-muted">From order to serve</p>
+    </div>
+</div>
+{% endblock %}

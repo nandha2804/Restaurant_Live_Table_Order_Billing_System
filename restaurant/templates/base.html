@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Restaurant POS System{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <style>
+        [x-cloak] { display: none !important; }
+        .toast { animation: slideIn 0.3s ease-out; }
+        @keyframes slideIn {
+            from { transform: translateX(400px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <a href="{% url 'home' %}" class="flex items-center space-x-3 hover:opacity-80 transition">
+                    <i class="fas fa-utensils text-2xl text-purple-600"></i>
+                    <span class="text-xl font-bold text-gray-900">RestaurantPOS</span>
+                </a>
+                
+                <div class="hidden md:flex items-center space-x-6">
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'dashboard' %}" class="text-gray-700 hover:text-purple-600 transition">
+                            <i class="fas fa-home"></i> Dashboard
+                        </a>
+                        
+                        {% if user.groups.all.0.name == 'Manager' %}
+                            <a href="{% url 'menu-list' %}" class="text-gray-700 hover:text-purple-600 transition">
+                                <i class="fas fa-list"></i> Menu
+                            </a>
+                            <a href="{% url 'table-list' %}" class="text-gray-700 hover:text-purple-600 transition">
+                                <i class="fas fa-table"></i> Tables
+                            </a>
+                            <a href="{% url 'reports' %}" class="text-gray-700 hover:text-purple-600 transition">
+                                <i class="fas fa-chart-bar"></i> Reports
+                            </a>
+                        {% elif user.groups.all.0.name == 'Waiter' %}
+                            <a href="{% url 'orders' %}" class="text-gray-700 hover:text-purple-600 transition">
+                                <i class="fas fa-clipboard-list"></i> Orders
+                            </a>
+                        {% elif user.groups.all.0.name == 'Cashier' %}
+                            <a href="{% url 'billing' %}" class="text-gray-700 hover:text-purple-600 transition">
+                                <i class="fas fa-credit-card"></i> Billing
+                            </a>
+                        {% endif %}
+                        
+                        <div class="flex items-center space-x-3 border-l border-gray-300 pl-6">
+                            <!-- Notification Bell -->
+                            <div class="relative group">
+                                <button class="relative text-gray-700 hover:text-purple-600 transition text-xl">
+                                    <i class="fas fa-bell"></i>
+                                    {% with unread_count=user.notifications.filter|dictsort:"is_read" %}
+                                        {% if user.notifications.filter|length > 0 %}
+                                        <span class="absolute -top-2 -right-2 bg-red-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
+                                            {{ user.notifications.filter|length }}
+                                        </span>
+                                        {% endif %}
+                                    {% endwith %}
+                                </button>
+                                
+                                <!-- Notification Dropdown -->
+                                <div class="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                                    <div class="p-4 border-b border-gray-200">
+                                        <h4 class="text-sm font-bold text-gray-900">Recent Notifications</h4>
+                                    </div>
+                                    
+                                    <div class="max-h-96 overflow-y-auto">
+                                        {% with recent_notifications=user.notifications.all|slice:":5" %}
+                                            {% if recent_notifications %}
+                                                {% for notification in recent_notifications %}
+                                                <div class="p-3 border-b border-gray-100 hover:bg-gray-50 cursor-pointer transition">
+                                                    <div class="flex items-start gap-2">
+                                                        <div class="text-xs mt-1">
+                                                            {% if notification.notification_type == 'order_placed' %}
+                                                                <i class="fas fa-clipboard-list text-blue-600"></i>
+                                                            {% elif notification.notification_type == 'bill_pending' %}
+                                                                <i class="fas fa-credit-card text-yellow-600"></i>
+                                                            {% elif notification.notification_type == 'table_abandoned' %}
+                                                                <i class="fas fa-exclamation-circle text-red-600"></i>
+                                                            {% else %}
+                                                                <i class="fas fa-bell text-purple-600"></i>
+                                                            {% endif %}
+                                                        </div>
+                                                        <div class="flex-1 text-xs">
+                                                            <p class="font-semibold text-gray-900">{{ notification.title }}</p>
+                                                            <p class="text-gray-600 text-xs mt-1">{{ notification.message|truncatewords:10 }}</p>
+                                                        </div>
+                                                        {% if not notification.is_read %}
+                                                        <span class="inline-block w-2 h-2 bg-purple-600 rounded-full"></span>
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                                {% endfor %}
+                                            {% else %}
+                                                <div class="p-4 text-center text-gray-600 text-sm">
+                                                    No recent notifications
+                                                </div>
+                                            {% endif %}
+                                        {% endwith %}
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-purple-100 text-purple-800">
+                                <i class="fas fa-user-circle mr-2"></i> {{ user.username }}
+                            </span>
+                            <a href="{% url 'logout' %}" class="text-red-600 hover:text-red-800 transition">
+                                <i class="fas fa-sign-out-alt"></i>
+                            </a>
+                        </div>
+                    {% else %}
+                        <a href="{% url 'login' %}" class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition">
+                            Login
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Alerts -->
+    {% if messages %}
+        <div class="fixed top-20 right-4 space-y-2 z-40">
+            {% for message in messages %}
+                <div class="toast bg-white p-4 rounded-lg shadow-lg border-l-4 border-{% if message.tags %}{{ message.tags }}-600{% else %}green-600{% endif %}">
+                    <div class="flex items-center">
+                        <i class="fas fa-{% if message.tags == 'error' %}exclamation-circle text-red-600{% elif message.tags == 'success' %}check-circle text-green-600{% else %}info-circle text-blue-600{% endif %} mr-3"></i>
+                        <span>{{ message }}</span>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-gray-300 text-center py-6 mt-12">
+        <p>&copy; 2025 Restaurant Management System. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // Auto-dismiss alerts after 5 seconds
+        document.querySelectorAll('.toast').forEach(toast => {
+            setTimeout(() => {
+                toast.style.animation = 'slideOut 0.3s ease-out';
+                setTimeout(() => toast.remove(), 300);
+            }, 5000);
+        });
+
+        // AJAX polling for live updates
+        function pollTableStatus() {
+            const token = localStorage.getItem('auth_token');
+            if (!token) return;
+            
+            fetch('/api/tables/dashboard/', {
+                headers: { 'Authorization': `Token ${token}` }
+            })
+            .then(r => r.json())
+            .then(data => {
+                // Dispatch custom event for any listeners
+                window.dispatchEvent(new CustomEvent('table-status-updated', { detail: data }));
+            })
+            .catch(e => console.log('Polling error:', e));
+        }
+
+        // Poll every 5 seconds if authenticated
+        if (document.querySelector('[data-authenticated="true"]')) {
+            setInterval(pollTableStatus, 5000);
+        }
+    </script>
+</body>
+</html>

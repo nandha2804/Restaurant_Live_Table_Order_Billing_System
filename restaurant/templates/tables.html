@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+
+{% block title %}Tables - Restaurant Management{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+    <h2>🍽️ Restaurant Tables</h2>
+    <a href="/tables/create/" class="btn btn-primary">+ Add New Table</a>
+</div>
+
+<div class="grid" style="grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));">
+    <div class="card" style="border: 2px solid #4caf50; position: relative;">
+        <h3>Table 1</h3>
+        <p><strong>Capacity:</strong> 2 seats</p>
+        <p style="margin-top: 15px;"><span class="badge badge-success">Available</span></p>
+        <div style="margin-top: 15px; display: flex; gap: 5px;">
+            <a href="/orders/new/?table=1" class="btn btn-primary" style="padding: 5px 10px; font-size: 12px; flex: 1;">Order</a>
+            <a href="/tables/1/edit/" class="btn btn-secondary" style="padding: 5px 10px; font-size: 12px; flex: 1;">Edit</a>
+        </div>
+    </div>
+    
+    <div class="card" style="border: 2px solid #4caf50;">
+        <h3>Table 2</h3>
+        <p><strong>Capacity:</strong> 2 seats</p>
+        <p style="margin-top: 15px;"><span class="badge badge-success">Available</span></p>
+        <div style="margin-top: 15px; display: flex; gap: 5px;">
+            <a href="/orders/new/?table=2" class="btn btn-primary" style="padding: 5px 10px; font-size: 12px; flex: 1;">Order</a>
+            <a href="/tables/2/edit/" class="btn btn-secondary" style="padding: 5px 10px; font-size: 12px; flex: 1;">Edit</a>
+        </div>
+    </div>
+    
+    <div class="card" style="border: 2px solid #ff9800;">
+        <h3>Table 3</h3>
+        <p><strong>Capacity:</strong> 4 seats</p>
+        <p style="margin-top: 15px;"><span class="badge badge-warning">Occupied</span></p>
+        <p style="color: #999; font-size: 12px;">Order #1</p>
+        <div style="margin-top: 15px; display: flex; gap: 5px;">
+            <a href="/orders/1/" class="btn btn-secondary" style="padding: 5px 10px; font-size: 12px; flex: 1;">View</a>
+            <a href="/tables/3/edit/" class="btn btn-secondary" style="padding: 5px 10px; font-size: 12px; flex: 1;">Edit</a>
+        </div>
+    </div>
+    
+    <div class="card" style="border: 2px solid #f44336;">
+        <h3>Table 4</h3>
+        <p><strong>Capacity:</strong> 4 seats</p>
+        <p style="margin-top: 15px;"><span class="badge badge-danger">Bill Requested</span></p>
+        <p style="color: #999; font-size: 12px;">Bill #2 - ₹750</p>
+        <div style="margin-top: 15px; display: flex; gap: 5px;">
+            <a href="/bills/2/" class="btn btn-warning" style="padding: 5px 10px; font-size: 12px; flex: 1;">Pay</a>
+            <a href="/tables/4/edit/" class="btn btn-secondary" style="padding: 5px 10px; font-size: 12px; flex: 1;">Edit</a>
+        </div>
+    </div>
+    
+    <div class="card" style="border: 2px solid #4caf50;">
+        <h3>Table 5</h3>
+        <p><strong>Capacity:</strong> 6 seats</p>
+        <p style="margin-top: 15px;"><span class="badge badge-success">Available</span></p>
+        <div style="margin-top: 15px; display: flex; gap: 5px;">
+            <a href="/orders/new/?table=5" class="btn btn-primary" style="padding: 5px 10px; font-size: 12px; flex: 1;">Order</a>
+            <a href="/tables/5/edit/" class="btn btn-secondary" style="padding: 5px 10px; font-size: 12px; flex: 1;">Edit</a>
+        </div>
+    </div>
+    
+    <div class="card" style="border: 2px solid #4caf50;">
+        <h3>Table 6</h3>
+        <p><strong>Capacity:</strong> 6 seats</p>
+        <p style="margin-top: 15px;"><span class="badge badge-success">Available</span></p>
+        <div style="margin-top: 15px; display: flex; gap: 5px;">
+            <a href="/orders/new/?table=6" class="btn btn-primary" style="padding: 5px 10px; font-size: 12px; flex: 1;">Order</a>
+            <a href="/tables/6/edit/" class="btn btn-secondary" style="padding: 5px 10px; font-size: 12px; flex: 1;">Edit</a>
+        </div>
+    </div>
+</div>
+
+<h3 style="margin-top: 40px; margin-bottom: 20px;">📊 Table Statistics</h3>
+<table>
+    <thead>
+        <tr>
+            <th>Status</th>
+            <th>Count</th>
+            <th>Percentage</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><span class="badge badge-success">Available</span></td>
+            <td>6</td>
+            <td>60%</td>
+        </tr>
+        <tr>
+            <td><span class="badge badge-warning">Occupied</span></td>
+            <td>2</td>
+            <td>20%</td>
+        </tr>
+        <tr>
+            <td><span class="badge badge-danger">Bill Requested</span></td>
+            <td>1</td>
+            <td>10%</td>
+        </tr>
+        <tr>
+            <td><span class="badge badge-info">Closed</span></td>
+            <td>1</td>
+            <td>10%</td>
+        </tr>
+    </tbody>
+</table>
+{% endblock %}

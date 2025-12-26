@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block title %}Table Management - Restaurant POS{% endblock %}
+
+{% block content %}
+<div class="mb-8">
+    <h1 class="text-4xl font-bold text-gray-900">
+        <i class="fas fa-table text-purple-600 mr-3"></i>Table Management
+    </h1>
+    <p class="text-gray-600 mt-2">Manage restaurant tables and seating</p>
+</div>
+
+<!-- Tables Grid -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    {% for table in tables %}
+    <div class="bg-white rounded-lg shadow p-6 border-l-4 {% if table.status == 'available' %}border-green-500{% elif table.status == 'occupied' %}border-yellow-500{% elif table.status == 'bill_requested' %}border-blue-500{% else %}border-gray-400{% endif %}">
+        <div class="text-center mb-4">
+            <h3 class="text-3xl font-bold text-purple-600">Table #{{ table.table_number }}</h3>
+            <p class="text-gray-600 text-sm"><i class="fas fa-users mr-1"></i>{{ table.seating_capacity }} seats</p>
+        </div>
+        
+        <div class="mb-4">
+            <span class="inline-block px-3 py-1 rounded-full text-xs font-semibold {% if table.status == 'available' %}bg-green-100 text-green-800{% elif table.status == 'occupied' %}bg-yellow-100 text-yellow-800{% elif table.status == 'bill_requested' %}bg-blue-100 text-blue-800{% else %}bg-gray-100 text-gray-800{% endif %}">
+                {% if table.status == 'available' %}<i class="fas fa-check-circle mr-1"></i>Available{% elif table.status == 'occupied' %}<i class="fas fa-hourglass-half mr-1"></i>Occupied{% elif table.status == 'bill_requested' %}<i class="fas fa-credit-card mr-1"></i>Bill Requested{% else %}<i class="fas fa-times-circle mr-1"></i>Closed{% endif %}
+            </span>
+        </div>
+        
+        <div class="space-y-2">
+            <button class="w-full bg-blue-600 text-white py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition" onclick="alert('Edit functionality coming soon')">
+                <i class="fas fa-edit mr-1"></i>Edit
+            </button>
+            <button class="w-full bg-red-600 text-white py-2 rounded-lg text-sm font-medium hover:bg-red-700 transition" onclick="alert('Delete functionality coming soon')">
+                <i class="fas fa-trash mr-1"></i>Delete
+            </button>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

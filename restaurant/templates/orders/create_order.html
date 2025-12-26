@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+
+{% block title %}Create Order - Restaurant Management{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <h1 class="mb-4"><i class="fas fa-plus-circle"></i> Create New Order</h1>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <!-- Table Selection -->
+                    <div class="mb-4">
+                        <label for="table" class="form-label"><strong>Select Table</strong></label>
+                        <select class="form-select form-select-lg" id="table" name="table" required>
+                            <option value="">-- Choose a table --</option>
+                            {% for table in tables %}
+                                {% if table.status == 'available' %}
+                                    <option value="{{ table.id }}">Table {{ table.table_number }} ({{ table.seating_capacity }} seats)</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Menu Items -->
+                    <div class="mb-4">
+                        <h5 class="mb-3"><strong><i class="fas fa-utensils"></i> Select Items</strong></h5>
+                        
+                        <div class="row">
+                            {% for item in menu_items %}
+                            <div class="col-md-6 mb-3">
+                                <div class="card h-100">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <h6 class="card-title mb-0">{{ item.name }}</h6>
+                                            <span class="badge bg-primary">₹{{ item.price }}</span>
+                                        </div>
+                                        <p class="card-text small text-muted">{{ item.get_category_display }}</p>
+                                        <p class="card-text small">{{ item.description }}</p>
+                                        
+                                        <div class="input-group">
+                                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="decrementQuantity('{{ item.id }}')">-</button>
+                                            <input type="number" class="form-control form-control-sm text-center" id="quantity_{{ item.id }}" name="quantity_{{ item.id }}" value="0" min="0">
+                                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="incrementQuantity('{{ item.id }}')">+</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Order Summary -->
+                    <div class="card mb-4 bg-light">
+                        <div class="card-body">
+                            <h6 class="card-title"><strong>Order Summary</strong></h6>
+                            <div id="order-summary">
+                                <p class="text-muted">Items will appear here...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-check-circle"></i> Create Order
+                        </button>
+                        <a href="{% url 'dashboard' %}" class="btn btn-secondary">
+                            <i class="fas fa-times-circle"></i> Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Side Panel -->
+    <div class="col-md-4">
+        <div class="card sticky-top">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-info-circle"></i> Instructions</h5>
+            </div>
+            <div class="card-body">
+                <ol class="small">
+                    <li>Select an available table</li>
+                    <li>Add menu items by clicking + button</li>
+                    <li>Adjust quantities as needed</li>
+                    <li>Click "Create Order" to submit</li>
+                </ol>
+                
+                <hr>
+                
+                <h6><strong>Tips:</strong></h6>
+                <ul class="small mb-0">
+                    <li>Only available items are shown</li>
+                    <li>Table status updates automatically</li>
+                    <li>You can add more items later</li>
+                    <li>Order will be sent to kitchen</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function incrementQuantity(itemId) {
+    const input = document.getElementById('quantity_' + itemId);
+    input.value = parseInt(input.value) + 1;
+    updateOrderSummary();
+}
+
+function decrementQuantity(itemId) {
+    const input = document.getElementById('quantity_' + itemId);
+    if (parseInt(input.value) > 0) {
+        input.value = parseInt(input.value) - 1;
+        updateOrderSummary();
+    }
+}
+
+function updateOrderSummary() {
+    const summary = document.getElementById('order-summary');
+    let html = '';
+    let totalItems = 0;
+    
+    document.querySelectorAll('input[name^="quantity_"]').forEach(input => {
+        const qty = parseInt(input.value);
+        if (qty > 0) {
+            totalItems++;
+        }
+    });
+    
+    if (totalItems > 0) {
+        html = '<p><strong>Total Items: ' + totalItems + '</strong></p>';
+        html += '<small class="text-muted">Ready to create order</small>';
+    } else {
+        html = '<p class="text-muted">Add items to create order</p>';
+    }
+    
+    summary.innerHTML = html;
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', updateOrderSummary);
+</script>
+{% endblock %}

@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - Restaurant Management{% endblock %}
+
+{% block content %}
+<h2>📊 Dashboard</h2>
+
+<div class="grid">
+    <div class="card">
+        <h3>Total Tables</h3>
+        <div class="card-value">10</div>
+        <p class="text-muted">Active restaurant tables</p>
+    </div>
+    
+    <div class="card">
+        <h3>Available Tables</h3>
+        <div class="card-value" style="color: #4caf50;">6</div>
+        <p class="text-muted">Ready for customers</p>
+    </div>
+    
+    <div class="card">
+        <h3>Occupied Tables</h3>
+        <div class="card-value" style="color: #ff9800;">3</div>
+        <p class="text-muted">Currently in use</p>
+    </div>
+    
+    <div class="card">
+        <h3>Pending Bills</h3>
+        <div class="card-value" style="color: #f44336;">1</div>
+        <p class="text-muted">Awaiting payment</p>
+    </div>
+</div>
+
+<h3 style="margin-top: 40px; margin-bottom: 20px;">📋 Quick Actions</h3>
+<div style="display: flex; gap: 15px; flex-wrap: wrap;">
+    <a href="/tables/" class="btn btn-primary">Manage Tables</a>
+    <a href="/orders/" class="btn btn-secondary">Create Order</a>
+    <a href="/menu/" class="btn btn-secondary">Menu Items</a>
+    <a href="/bills/" class="btn btn-secondary">View Bills</a>
+</div>
+
+<h3 style="margin-top: 40px; margin-bottom: 20px;">🍽️ Table Status</h3>
+<table>
+    <thead>
+        <tr>
+            <th>Table Number</th>
+            <th>Capacity</th>
+            <th>Status</th>
+            <th>Current Order</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>#1</td>
+            <td>2 seats</td>
+            <td><span class="badge badge-success">Available</span></td>
+            <td>-</td>
+            <td><a href="/orders/new/?table=1" class="btn btn-primary" style="padding: 5px 10px; font-size: 12px;">Create Order</a></td>
+        </tr>
+        <tr>
+            <td>#2</td>
+            <td>2 seats</td>
+            <td><span class="badge badge-success">Available</span></td>
+            <td>-</td>
+            <td><a href="/orders/new/?table=2" class="btn btn-primary" style="padding: 5px 10px; font-size: 12px;">Create Order</a></td>
+        </tr>
+        <tr>
+            <td>#3</td>
+            <td>4 seats</td>
+            <td><span class="badge badge-warning">Occupied</span></td>
+            <td>Order #1</td>
+            <td><a href="/orders/1/" class="btn btn-secondary" style="padding: 5px 10px; font-size: 12px;">View Order</a></td>
+        </tr>
+        <tr>
+            <td>#4</td>
+            <td>4 seats</td>
+            <td><span class="badge badge-warning">Occupied</span></td>
+            <td>Order #2</td>
+            <td><a href="/orders/2/" class="btn btn-secondary" style="padding: 5px 10px; font-size: 12px;">View Order</a></td>
+        </tr>
+    </tbody>
+</table>
+
+<h3 style="margin-top: 40px; margin-bottom: 20px;">💳 Recent Bills</h3>
+<table>
+    <thead>
+        <tr>
+            <th>Bill ID</th>
+            <th>Table</th>
+            <th>Amount</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>#1</td>
+            <td>Table 1</td>
+            <td>₹350.00</td>
+            <td><span class="badge badge-success">Paid</span></td>
+            <td><a href="/bills/1/" class="btn btn-secondary" style="padding: 5px 10px; font-size: 12px;">View</a></td>
+        </tr>
+        <tr>
+            <td>#2</td>
+            <td>Table 3</td>
+            <td>₹750.00</td>
+            <td><span class="badge badge-danger">Pending</span></td>
+            <td><a href="/bills/2/" class="btn btn-warning" style="padding: 5px 10px; font-size: 12px;">Collect</a></td>
+        </tr>
+    </tbody>
+</table>
+{% endblock %}

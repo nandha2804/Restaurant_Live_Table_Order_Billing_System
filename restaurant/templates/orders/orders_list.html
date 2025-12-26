@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+
+{% block title %}Orders - Restaurant POS{% endblock %}
+
+{% block content %}
+<div class="mb-8">
+    <div class="flex justify-between items-center">
+        <div>
+            <h1 class="text-4xl font-bold text-gray-900">
+                <i class="fas fa-clipboard-list text-purple-600 mr-3"></i>Orders Management
+            </h1>
+            <p class="text-gray-600 mt-2">Track and manage all active orders</p>
+        </div>
+        {% if user.groups.all.0.name == 'Waiter' %}
+        <a href="{% url 'create-order' %}" class="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition font-medium">
+            <i class="fas fa-plus mr-2"></i>New Order
+        </a>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Active Orders -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+    {% for order in orders %}
+    <div class="bg-white rounded-lg shadow-md hover:shadow-lg transition p-6 border-l-4 {% if order.status == 'placed' %}border-blue-500{% elif order.status == 'in_kitchen' %}border-yellow-500{% else %}border-green-500{% endif %}">
+        <div class="flex justify-between items-start mb-4">
+            <div>
+                <h3 class="text-2xl font-bold text-purple-600">#{{ order.id }}</h3>
+                <p class="text-gray-600 text-sm">Table {{ order.table.table_number }}</p>
+            </div>
+            <span class="inline-block px-3 py-1 rounded-full text-xs font-semibold {% if order.status == 'placed' %}bg-blue-100 text-blue-800{% elif order.status == 'in_kitchen' %}bg-yellow-100 text-yellow-800{% else %}bg-green-100 text-green-800{% endif %}">
+                {% if order.status == 'placed' %}<i class="fas fa-clock mr-1"></i>Placed{% elif order.status == 'in_kitchen' %}<i class="fas fa-fire mr-1"></i>In Kitchen{% else %}<i class="fas fa-check mr-1"></i>Served{% endif %}
+            </span>
+        </div>
+
+        <div class="mb-4 pb-4 border-b border-gray-200">
+            <p class="text-sm text-gray-600 mb-2"><strong>Items:</strong></p>
+            <ul class="text-sm">
+                {% for item in order.items.all %}
+                <li class="text-gray-700">{{ item.menu_item.name }} x{{ item.quantity }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <p class="text-xs text-gray-500 mb-4">{{ order.created_at|date:"d M, H:i" }}</p>
+
+        <div class="space-y-2">
+            {% if order.status == 'placed' %}
+            <form method="post" action="{% url 'send-to-kitchen' order.id %}">
+                {% csrf_token %}
+                <button type="submit" class="w-full bg-yellow-600 text-white py-2 rounded-lg text-sm font-medium hover:bg-yellow-700 transition">
+                    <i class="fas fa-fire mr-1"></i>Send to Kitchen
+                </button>
+            </form>
+            {% elif order.status == 'in_kitchen' %}
+            <form method="post" action="{% url 'mark-served' order.id %}">
+                {% csrf_token %}
+                <button type="submit" class="w-full bg-green-600 text-white py-2 rounded-lg text-sm font-medium hover:bg-green-700 transition">
+                    <i class="fas fa-check mr-1"></i>Mark Served
+                </button>
+            </form>
+            {% endif %}
+            
+            <a href="{% url 'order-detail' order.id %}" class="block w-full bg-gray-600 text-white py-2 rounded-lg text-sm font-medium hover:bg-gray-700 transition text-center">
+                <i class="fas fa-eye mr-1"></i>Details
+            </a>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-span-3 bg-gray-50 rounded-lg p-12 text-center">
+        <i class="fas fa-inbox text-6xl text-gray-300 mb-4 block"></i>
+        <p class="text-gray-500 text-lg">No active orders</p>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Statistics -->
+<div class="bg-white rounded-lg shadow p-6">
+    <h2 class="text-xl font-bold text-gray-900 mb-4">
+        <i class="fas fa-chart-pie text-purple-600 mr-2"></i>Order Statistics
+    </h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="text-center">
+            <p class="text-3xl font-bold text-blue-600">{{ orders|length }}</p>
+            <p class="text-gray-600 text-sm mt-1">Total Active Orders</p>
+        </div>
+        <div class="text-center">
+            <p class="text-3xl font-bold text-yellow-600">{{ orders|dictsort:"status"|length }}</p>
+            <p class="text-gray-600 text-sm mt-1">In Kitchen</p>
+        </div>
+        <div class="text-center">
+            <p class="text-3xl font-bold text-green-600">{{ menu_items|length }}</p>
+            <p class="text-gray-600 text-sm mt-1">Available Items</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
