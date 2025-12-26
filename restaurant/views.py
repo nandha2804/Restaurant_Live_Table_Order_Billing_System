@@ -432,99 +432,155 @@ class BillViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['get'], permission_classes=[IsAuthenticated])
     def export_pdf(self, request, pk=None):
         """
-        Export bill as PDF.
+        Export bill as PDF in A4 format.
         GET /api/bills/{id}/export_pdf/
         """
         from io import BytesIO
-        from reportlab.lib.pagesizes import letter
+        from reportlab.lib.pagesizes import A4
         from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
         from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-        from reportlab.lib.units import inch
+        from reportlab.lib.units import mm
         from reportlab.lib import colors
         from django.http import FileResponse
 
         bill = self.get_object()
 
-        # Create PDF
+        # Create PDF with A4 size and proper margins
         buffer = BytesIO()
-        doc = SimpleDocTemplate(buffer, pagesize=letter)
+        left_margin = 10 * mm
+        right_margin = 10 * mm
+        top_margin = 10 * mm
+        bottom_margin = 10 * mm
+        
+        doc = SimpleDocTemplate(
+            buffer, 
+            pagesize=A4,
+            leftMargin=left_margin,
+            rightMargin=right_margin,
+            topMargin=top_margin,
+            bottomMargin=bottom_margin
+        )
         story = []
 
         styles = getSampleStyleSheet()
-        title_style = ParagraphStyle(
-            'CustomTitle',
+        
+        # Header styles
+        header_style = ParagraphStyle(
+            'CustomHeader',
             parent=styles['Heading1'],
-            fontSize=24,
+            fontSize=18,
             textColor=colors.HexColor('#333333'),
-            spaceAfter=10,
+            spaceAfter=6,
+            alignment=1,  # Center alignment
+        )
+        
+        subtitle_style = ParagraphStyle(
+            'CustomSubtitle',
+            parent=styles['Normal'],
+            fontSize=10,
+            textColor=colors.HexColor('#666666'),
+            spaceAfter=3,
+            alignment=1,
         )
 
         # Title
-        story.append(Paragraph("Restaurant Bill", title_style))
-        story.append(Spacer(1, 0.3 * inch))
+        story.append(Paragraph("RestaurantPOS", header_style))
+        story.append(Paragraph("Professional Restaurant Management System", subtitle_style))
+        story.append(Paragraph("Bill Invoice", subtitle_style))
+        story.append(Spacer(1, 8 * mm))
 
-        # Bill info
+        # Bill info in 2x2 grid
         info_data = [
-            ['Bill Number:', f'#{bill.id}'],
-            ['Table Number:', str(bill.table.table_number)],
-            ['Date:', bill.created_at.strftime('%Y-%m-%d %H:%M:%S')],
-            ['Status:', bill.get_status_display()],
+            [Paragraph('<b>Bill Number:</b>', styles['Normal']), Paragraph(f'<b>#{bill.id}</b>', styles['Normal'])],
+            [Paragraph('<b>Table Number:</b>', styles['Normal']), Paragraph(f'<b>#{bill.table.table_number}</b>', styles['Normal'])],
+            [Paragraph('<b>Generated:</b>', styles['Normal']), Paragraph(bill.created_at.strftime('%d-%m-%Y %H:%M'), styles['Normal'])],
+            [Paragraph('<b>Status:</b>', styles['Normal']), Paragraph(bill.get_status_display().upper(), styles['Normal'])],
         ]
-        info_table = Table(info_data, colWidths=[2 * inch, 2 * inch])
+        info_table = Table(info_data, colWidths=[4.5 * cm, 4.5 * cm])
         info_table.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (0, -1), colors.lightgrey),
+            ('BACKGROUND', (0, 0), (0, -1), colors.HexColor('#f0f0f0')),
+            ('BACKGROUND', (1, 0), (1, -1), colors.HexColor('#ffffff')),
             ('TEXTCOLOR', (0, 0), (-1, -1), colors.black),
             ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-            ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
-            ('FONTSIZE', (0, 0), (-1, -1), 10),
-            ('BOTTOMPADDING', (0, 0), (-1, -1), 12),
-            ('GRID', (0, 0), (-1, -1), 1, colors.grey),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('FONTSIZE', (0, 0), (-1, -1), 9),
+            ('LEFTPADDING', (0, 0), (-1, -1), 6),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 6),
+            ('TOPPADDING', (0, 0), (-1, -1), 4),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#cccccc')),
         ]))
         story.append(info_table)
-        story.append(Spacer(1, 0.3 * inch))
+        story.append(Spacer(1, 6 * mm))
 
         # Items table
-        if bill.order:
-            items_data = [['Item', 'Qty', 'Price', 'Total']]
+        if bill.order and bill.order.items.exists():
+            items_data = [[
+                Paragraph('<b>Item</b>', styles['Normal']),
+                Paragraph('<b>Qty</b>', styles['Normal']),
+                Paragraph('<b>Price</b>', styles['Normal']),
+                Paragraph('<b>Total</b>', styles['Normal'])
+            ]]
+            
             for item in bill.order.items.all():
                 items_data.append([
-                    item.menu_item.name,
-                    str(item.quantity),
-                    f'₹{item.menu_item.price}',
-                    f'₹{item.get_total_price()}'
+                    Paragraph(item.menu_item.name, styles['Normal']),
+                    Paragraph(str(item.quantity), styles['Normal']),
+                    Paragraph(f'₹{item.menu_item.price}', styles['Normal']),
+                    Paragraph(f'₹{item.get_total_price()}', styles['Normal'])
                 ])
 
-            items_table = Table(items_data, colWidths=[2.5 * inch, 0.8 * inch, 1 * inch, 1 * inch])
+            items_table = Table(items_data, colWidths=[6.5 * cm, 1.5 * cm, 2 * cm, 2.5 * cm])
             items_table.setStyle(TableStyle([
-                ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+                ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#333333')),
                 ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-                ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-                ('FONTSIZE', (0, 0), (-1, 0), 11),
-                ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-                ('GRID', (0, 0), (-1, -1), 1, colors.black),
+                ('ALIGN', (0, 0), (0, -1), 'LEFT'),
+                ('ALIGN', (1, 0), (-1, -1), 'CENTER'),
+                ('ALIGN', (2, 0), (-1, -1), 'RIGHT'),
+                ('ALIGN', (3, 0), (-1, -1), 'RIGHT'),
+                ('FONTSIZE', (0, 0), (-1, -1), 9),
+                ('LEFTPADDING', (0, 0), (-1, -1), 5),
+                ('RIGHTPADDING', (0, 0), (-1, -1), 5),
+                ('TOPPADDING', (0, 0), (-1, -1), 4),
+                ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
+                ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#cccccc')),
+                ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#f9f9f9')]),
             ]))
             story.append(items_table)
-            story.append(Spacer(1, 0.2 * inch))
+            story.append(Spacer(1, 6 * mm))
 
-        # Totals
-        totals_data = [
-            ['Subtotal:', f'₹{bill.subtotal}'],
-            ['Tax ({0}%):'.format(bill.tax_percentage), f'₹{bill.tax_amount}'],
-            ['Total:', f'₹{bill.total_amount}'],
+        # Summary section
+        story.append(Spacer(1, 2 * mm))
+        summary_data = [
+            [Paragraph('Subtotal:', styles['Normal']), Paragraph(f'₹{bill.subtotal}', styles['Normal'])],
+            [Paragraph(f'Tax ({bill.tax_percentage}%):', styles['Normal']), Paragraph(f'₹{bill.tax_amount}', styles['Normal'])],
+            [Paragraph('<b>Total Amount:</b>', styles['Normal']), Paragraph(f'<b>₹{bill.total_amount}</b>', styles['Normal'])],
         ]
-        totals_table = Table(totals_data, colWidths=[3 * inch, 1.5 * inch])
-        totals_table.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (-1, -2), colors.beige),
-            ('BACKGROUND', (0, -1), (-1, -1), colors.lightgrey),
-            ('TEXTCOLOR', (0, 0), (-1, -1), colors.black),
-            ('ALIGN', (0, 0), (-1, -1), 'RIGHT'),
-            ('FONTNAME', (0, 0), (-1, -1), 'Helvetica-Bold'),
+        summary_table = Table(summary_data, colWidths=[13 * cm, 3 * cm])
+        summary_table.setStyle(TableStyle([
+            ('ALIGN', (0, 0), (0, -1), 'RIGHT'),
+            ('ALIGN', (1, 0), (1, -1), 'RIGHT'),
             ('FONTSIZE', (0, 0), (-1, -1), 10),
-            ('BOTTOMPADDING', (0, 0), (-1, -1), 12),
-            ('GRID', (0, 0), (-1, -1), 1, colors.black),
+            ('TOPPADDING', (0, 0), (-1, -1), 5),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+            ('LINEABOVE', (0, 0), (-1, 0), 1, colors.HexColor('#666666')),
+            ('LINEABOVE', (0, -1), (-1, -1), 2, colors.HexColor('#000000')),
+            ('BACKGROUND', (0, -1), (-1, -1), colors.HexColor('#f0f0f0')),
         ]))
-        story.append(totals_table)
+        story.append(summary_table)
+        story.append(Spacer(1, 8 * mm))
+
+        # Footer
+        footer_style = ParagraphStyle(
+            'Footer',
+            parent=styles['Normal'],
+            fontSize=9,
+            textColor=colors.HexColor('#666666'),
+            alignment=1,
+        )
+        story.append(Paragraph('Thank you for your visit!', footer_style))
+        if bill.status == 'paid':
+            story.append(Paragraph(f'Paid on: {bill.paid_at.strftime("%d-%m-%Y %H:%M")}', footer_style))
 
         # Build PDF
         doc.build(story)

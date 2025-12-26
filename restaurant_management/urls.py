@@ -3,6 +3,17 @@ from django.urls import path, include
 from django.contrib.auth.views import LoginView, LogoutView
 from restaurant import views_web
 
+
+from rest_framework.routers import DefaultRouter
+from restaurant import views
+
+router = DefaultRouter()
+router.register(r'tables', views.TableViewSet, basename='table')
+router.register(r'menu-items', views.MenuItemViewSet, basename='menuitem')
+router.register(r'orders', views.OrderViewSet, basename='order')
+router.register(r'bills', views.BillViewSet, basename='bill')
+router.register(r'users', views.UserViewSet, basename='user')
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     
@@ -30,6 +41,11 @@ urlpatterns = [
     path('tables/', views_web.table_list, name='table-list'),
     path('reports/', views_web.reports, name='reports'),
     
-    # API Routes
-    path('api/', include('restaurant.urls')),
+    path('auth/login/', views.obtain_token, name='auth_login'),
+    path('auth/logout/', views.logout, name='auth_logout'),
+    
+    # Reports
+    path('reports/daily-sales/', views.daily_sales_report, name='daily_sales_report'),
+    
+    
 ]

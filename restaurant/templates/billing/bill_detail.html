@@ -3,7 +3,276 @@
 {% block title %}Bill #{{ bill.id }} - Restaurant POS{% endblock %}
 
 {% block content %}
-<div class="mb-8">
+<style>
+    @media print {
+        * {
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 11pt;
+            line-height: 1.4;
+            color: #000;
+            background: #fff;
+        }
+        
+        .no-print {
+            display: none !important;
+        }
+        
+        .print-container {
+            width: 21cm;
+            height: 29.7cm;
+            margin: 0;
+            padding: 10mm;
+            page-break-after: always;
+            background: #fff;
+        }
+        
+        .grid {
+            display: block !important;
+        }
+        
+        .lg\:col-span-2 {
+            width: 100% !important;
+        }
+        
+        .sticky {
+            position: static !important;
+        }
+        
+        .rounded-lg {
+            border-radius: 0 !important;
+        }
+        
+        .shadow {
+            box-shadow: none !important;
+            border: 0.5pt solid #999;
+        }
+        
+        .bg-white {
+            background: #fff !important;
+        }
+        
+        .mb-6 {
+            margin-bottom: 8pt !important;
+        }
+        
+        .mb-4 {
+            margin-bottom: 4pt !important;
+        }
+        
+        .mb-8 {
+            margin-bottom: 12pt !important;
+        }
+        
+        .p-8 {
+            padding: 6pt !important;
+        }
+        
+        .p-6 {
+            padding: 4pt !important;
+        }
+        
+        h1 {
+            font-size: 18pt !important;
+            margin-bottom: 6pt !important;
+            display: none;
+        }
+        
+        h2 {
+            font-size: 14pt !important;
+            margin-bottom: 6pt !important;
+        }
+        
+        .text-4xl {
+            font-size: 14pt !important;
+        }
+        
+        .text-3xl {
+            font-size: 16pt !important;
+        }
+        
+        .text-2xl {
+            font-size: 13pt !important;
+        }
+        
+        .text-xl {
+            font-size: 12pt !important;
+        }
+        
+        .text-lg {
+            font-size: 11pt !important;
+        }
+        
+        .text-sm {
+            font-size: 9pt !important;
+        }
+        
+        .text-center {
+            text-align: center;
+        }
+        
+        .text-right {
+            text-align: right;
+        }
+        
+        .text-left {
+            text-align: left;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 8pt 0;
+        }
+        
+        th, td {
+            padding: 3pt 4pt !important;
+            border: none;
+            text-align: left;
+        }
+        
+        th {
+            border-bottom: 1pt solid #000;
+            font-weight: bold;
+            background: #fff !important;
+        }
+        
+        td {
+            border-bottom: 0.5pt solid #ddd;
+        }
+        
+        .border-b {
+            border-bottom: 0.5pt solid #ddd !important;
+        }
+        
+        .border-t {
+            border-top: 0.5pt solid #999 !important;
+        }
+        
+        .border-b-2 {
+            border-bottom: 1pt solid #999 !important;
+        }
+        
+        .font-bold {
+            font-weight: bold;
+        }
+        
+        .font-semibold {
+            font-weight: bold;
+        }
+        
+        .inline-block {
+            display: inline-block;
+        }
+        
+        .space-y-3 > * + * {
+            margin-top: 3pt;
+        }
+        
+        .space-y-3 {
+            margin-bottom: 6pt;
+        }
+        
+        .grid-cols-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8pt;
+        }
+        
+        .gap-4 {
+            gap: 4pt !important;
+        }
+        
+        .gap-6 {
+            gap: 6pt !important;
+        }
+        
+        .overflow-x-auto {
+            overflow: visible !important;
+        }
+        
+        button, a.block {
+            display: none !important;
+        }
+        
+        .mt-8 {
+            margin-top: 8pt !important;
+        }
+        
+        .pt-6 {
+            padding-top: 4pt !important;
+        }
+        
+        .mt-4 {
+            margin-top: 4pt !important;
+        }
+        
+        .mt-2 {
+            margin-top: 2pt !important;
+        }
+        
+        .mt-1 {
+            margin-top: 1pt !important;
+        }
+        
+        .px-4 {
+            padding-left: 3pt !important;
+            padding-right: 3pt !important;
+        }
+        
+        .py-3 {
+            padding-top: 2pt !important;
+            padding-bottom: 2pt !important;
+        }
+        
+        .px-3 {
+            padding-left: 2pt !important;
+            padding-right: 2pt !important;
+        }
+        
+        .py-1 {
+            padding-top: 1pt !important;
+            padding-bottom: 1pt !important;
+        }
+        
+        .text-purple-600 {
+            color: #000 !important;
+        }
+        
+        .text-yellow-800,
+        .text-green-800,
+        .text-gray-900,
+        .text-gray-600,
+        .text-gray-500,
+        .text-gray-700,
+        .text-green-700,
+        .text-green-800 {
+            color: #000 !important;
+        }
+        
+        .bg-green-50,
+        .bg-yellow-100,
+        .bg-green-100 {
+            background: #f5f5f5 !important;
+            border: none !important;
+        }
+        
+        .border-green-200,
+        .border-yellow-200 {
+            border: 0.5pt solid #999 !important;
+        }
+        
+        i {
+            display: none;
+        }
+    }
+</style>
+
+<div class="mb-8 no-print">
     <a href="{% url 'billing' %}" class="text-purple-600 hover:text-purple-700 mb-4 inline-block">
         <i class="fas fa-arrow-left mr-2"></i>Back to Billing
     </a>
@@ -12,9 +281,9 @@
     </h1>
 </div>
 
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 print-container">
     <!-- Bill Details -->
-    <div class="lg:col-span-2">
+    <div class="lg:col-span-2" style="width: 100%;">
         <!-- Restaurant Header -->
         <div class="bg-white rounded-lg shadow p-8 mb-6 text-center">
             <h2 class="text-3xl font-bold text-gray-900">RestaurantPOS</h2>
@@ -78,8 +347,8 @@
     </div>
 
     <!-- Summary & Payment -->
-    <div>
-        <div class="bg-white rounded-lg shadow p-6 sticky top-24">
+    <div style="width: 100%;">
+        <div class="bg-white rounded-lg shadow p-6 sticky top-24" style="position: static;">
             <h2 class="text-2xl font-bold text-gray-900 mb-6">
                 <i class="fas fa-calculator text-purple-600 mr-2"></i>Bill Summary
             </h2>
@@ -115,7 +384,7 @@
             {% endif %}
 
             <!-- Action Buttons -->
-            <div class="space-y-3">
+            <div class="space-y-3 no-print">
                 {% if bill.status == 'pending' %}
                 <form method="post" action="{% url 'mark-paid' bill.id %}">
                     {% csrf_token %}
