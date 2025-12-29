@@ -163,7 +163,7 @@ Restaurant_Live_Order_Management/
 
 1. **Clone the Repository**
 ```bash
-cd d:\22\Restaurant_Live_Order_Management
+cd Restaurant_Live_Table_Order_Billing_System
 ```
 
 2. **Create Virtual Environment** (Optional but recommended)
