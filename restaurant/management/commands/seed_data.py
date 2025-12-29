@@ -274,7 +274,7 @@ class Command(BaseCommand):
             notification_type='order_placed',
             title='New Order Placed',
             message=f'Table {order1.table.table_number} placed an order for 2x Samosa and 2x Mango Lassi',
-            order=order1,
+            order_id=order1.id,
             defaults={'is_read': True, 'created_at': now - timedelta(minutes=10)}
         )
 
@@ -284,7 +284,7 @@ class Command(BaseCommand):
             notification_type='bill_pending',
             title='Bill Payment Pending',
             message=f'Table {bill1.table.table_number} has a pending bill of ₹{bill1.total_amount}',
-            bill=bill1,
+            bill_id=bill1.id,
             defaults={'is_read': True, 'created_at': now - timedelta(minutes=5)}
         )
 
@@ -294,7 +294,7 @@ class Command(BaseCommand):
             notification_type='payment_received',
             title='Payment Received',
             message=f'Payment of ₹{bill1.total_amount} received from Table {bill1.table.table_number}',
-            bill=bill1,
+            bill_id=bill1.id,
             defaults={'is_read': True, 'created_at': now - timedelta(minutes=3)}
         )
 
@@ -304,7 +304,7 @@ class Command(BaseCommand):
             notification_type='order_ready',
             title='Order Ready for Pickup',
             message=f'Order #{order2.id} is ready to serve at Table {order2.table.table_number}',
-            order=order2,
+            order_id=order2.id,
             defaults={'is_read': False, 'created_at': now - timedelta(minutes=2)}
         )
 
@@ -314,7 +314,7 @@ class Command(BaseCommand):
             notification_type='bill_pending',
             title='New Bill Pending Payment',
             message=f'Table {bill2.table.table_number} bill is pending - Amount: ₹{bill2.total_amount}',
-            bill=bill2,
+            bill_id=bill2.id,
             defaults={'is_read': False, 'created_at': now - timedelta(minutes=1)}
         )
 
@@ -332,7 +332,7 @@ class Command(BaseCommand):
             notification_type='order_placed',
             title='Kitchen: New Order Received',
             message=f'Order #{order1.id} - Special note: No spices on samosa',
-            order=order1,
+            order_id=order1.id,
             defaults={'is_read': False, 'created_at': now - timedelta(seconds=45)}
         )
 
